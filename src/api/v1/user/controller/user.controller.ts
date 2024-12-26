@@ -5,14 +5,18 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  NotFoundException,
   Param,
+  ParseIntPipe,
   Patch,
   Post,
+  Res,
 } from '@nestjs/common';
 import { UserService } from '../services';
 import { CreateUserDto } from '../dto';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { UserEntity } from '../entity/user.entity';
+import { Response } from 'express';
 
 @Controller('user')
 @ApiTags('user')
@@ -25,8 +29,9 @@ export class UserController {
     type: UserEntity,
     isArray: true,
   })
-  findAll() {
-    return this.userService.findAll();
+  async findAll(@Res() response: Response) {
+    const users = await this.userService.findAll();
+    return response.status(HttpStatus.OK).json(users);
   }
 
   @Get(':id')
@@ -34,8 +39,15 @@ export class UserController {
     description: 'User details',
     type: UserEntity,
   })
-  findOne(@Param('id') id: string) {
-    return this.userService.findOne(+id);
+  async findOne(
+    @Param('id', ParseIntPipe) id: number,
+    @Res() response: Response,
+  ) {
+    const user = await this.userService.findOne(id);
+    if (!user) {
+      throw new NotFoundException(`User not found`);
+    }
+    return response.status(HttpStatus.OK).send(user);
   }
 
   @Post()
@@ -44,8 +56,12 @@ export class UserController {
     description: 'User created',
     type: UserEntity,
   })
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.userService.create(createUserDto);
+  async create(
+    @Body() createUserDto: CreateUserDto,
+    @Res() response: Response,
+  ) {
+    await this.userService.create(createUserDto);
+    return response.status(HttpStatus.CREATED).end();
   }
 
   @Patch(':id')
@@ -54,11 +70,13 @@ export class UserController {
     description: 'User updated',
     type: UserEntity,
   })
-  update(
-    @Param('id') id: string,
+  async update(
+    @Param('id', ParseIntPipe) id: number,
     @Body() createUserDto: Partial<CreateUserDto>,
+    @Res() response: Response,
   ) {
-    return this.userService.update(+id, createUserDto);
+    await this.userService.update(id, createUserDto);
+    return response.status(HttpStatus.NO_CONTENT).end();
   }
 
   @Delete(':id')
@@ -66,7 +84,11 @@ export class UserController {
   @ApiOkResponse({
     description: 'User deleted',
   })
-  delete(@Param('id') id: string) {
-    return this.userService.delete(+id);
+  async delete(
+    @Param('id', ParseIntPipe) id: number,
+    @Res() response: Response,
+  ) {
+    await this.userService.delete(id);
+    return response.status(HttpStatus.NO_CONTENT).end();
   }
 }
