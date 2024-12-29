@@ -16,7 +16,7 @@ export class UserEntity implements User {
   @ApiProperty()
   email: string;
 
-  @Exclude({ toPlainOnly: false })
+  @Exclude()
   password: string;
 
   @ApiProperty()

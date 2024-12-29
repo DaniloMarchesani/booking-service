@@ -9,13 +9,17 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  UseGuards,
 } from '@nestjs/common';
 import { UserService } from '../services';
 import { CreateUserDto } from '../dto';
-import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { UserEntity } from '../entities/user.entity';
+import { JwtAuthGuard } from 'src/auth/guard/auth.guard';
 
 @Controller('users')
+@UseGuards(JwtAuthGuard)
+@ApiBearerAuth()
 @ApiTags('users')
 export class UserController {
   constructor(private readonly userService: UserService) {}

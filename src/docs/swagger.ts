@@ -5,6 +5,7 @@ const config = new DocumentBuilder()
   .setTitle('Booking service API')
   .setDescription('The booking service API description')
   .setVersion('1.0')
+  .addBearerAuth()
   .addTag('booking')
   .build();
 

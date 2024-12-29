@@ -9,15 +9,25 @@ import {
   ParseIntPipe,
   Res,
   HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
 import { CreateBookingDto } from '../dto/create-booking.dto';
 import { UpdateBookingDto } from '../dto/update-booking.dto';
 import { BookingsService } from '../services/bookings.service';
-import { ApiCreatedResponse, ApiOkResponse } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiCreatedResponse,
+  ApiOkResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { BookingEntity } from '../entities/booking.entity';
 import { Response } from 'express';
+import { JwtAuthGuard } from 'src/auth/guard/auth.guard';
 
 @Controller('bookings')
+@UseGuards(JwtAuthGuard)
+@ApiBearerAuth()
+@ApiTags('bookings')
 export class BookingsController {
   constructor(private readonly bookingsService: BookingsService) {}
 
@@ -40,6 +50,7 @@ export class BookingsController {
   @ApiOkResponse({
     description: 'List of all bookings of the logged in user',
     type: BookingEntity,
+    isArray: true,
   })
   async findAll() {
     return this.bookingsService.findAll();
