@@ -1,5 +1,5 @@
 import { CreateUserDto } from '../dto';
-import { UserEntity } from '../entity/user.entity';
+import { UserEntity } from '../entities/user.entity';
 
 export interface IUserService {
   findAll(): Promise<UserEntity[]>;

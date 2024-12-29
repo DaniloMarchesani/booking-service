@@ -13,7 +13,7 @@ export class UserService implements IUserService {
   }
 
   findOne(id: number) {
-    return this.prismaService.user.findUnique({ where: { id } });
+    return this.prismaService.user.findUnique({ where: { id: id } });
   }
 
   create(user: CreateUserDto) {
