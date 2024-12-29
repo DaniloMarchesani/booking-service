@@ -1,12 +1,19 @@
 import { PrismaClient } from '@prisma/client';
+import * as bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
 
 async function main() {
+  const hashingRounds = 10;
+
+  // clear all old data
+  await prisma.booking.deleteMany();
+  await prisma.user.deleteMany();
+
   const user1 = await prisma.user.upsert({
     create: {
       email: 'daniloDummy@yahoo.com',
-      password: '123123123',
+      password: await bcrypt.hash('beatiful-password', hashingRounds),
     },
     where: {
       email: 'daniloDummy@yahoo.com',
@@ -17,7 +24,7 @@ async function main() {
   const user2 = await prisma.user.upsert({
     create: {
       email: 'user2@garbaioemail.com',
-      password: '123123123',
+      password: await bcrypt.hash('baka-password', hashingRounds),
     },
     where: {
       email: 'user2@garbaioemail.com',
