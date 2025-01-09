@@ -1,4 +1,4 @@
-import { Injectable, Logger, NestMiddleware } from '@nestjs/common';
+import { HttpStatus, Injectable, Logger, NestMiddleware } from '@nestjs/common';
 import { NextFunction, Request, Response } from 'express';
 
 @Injectable()
@@ -11,9 +11,16 @@ export class LoggerMiddleware implements NestMiddleware {
     res.on('finish', () => {
       const { statusCode } = res;
       const elapsedTime = Date.now() - startTime;
-      this.logger.log(
-        `${method} ${originalUrl} ${statusCode} - ${elapsedTime}ms`,
-      );
+
+      if (statusCode === (HttpStatus.UNAUTHORIZED || HttpStatus.NOT_FOUND)) {
+        this.logger.error(
+          `${method} ${originalUrl} ${statusCode} - ${elapsedTime}ms`,
+        );
+      } else {
+        this.logger.log(
+          `${method} ${originalUrl} ${statusCode} - ${elapsedTime}ms`,
+        );
+      }
     });
     next();
   }
