@@ -34,4 +34,40 @@ export class AuthService {
       accessToken: this.jwtService.sign({ userId: user.id, email: user.email }),
     };
   }
+
+  async register(
+    email: string,
+    username: string,
+    password: string,
+  ): Promise<AuthEntity> {
+    try {
+      const ifUserExists = await this.prismaService.user.findUnique({
+        where: { email: email },
+      });
+      if (ifUserExists) {
+        throw new Error('User already exists');
+      }
+
+      const hashedPassword = await bcrypt
+        .genSalt(10)
+        .then((pw) => bcrypt.hash(password, pw));
+
+      const user = await this.prismaService.user.create({
+        data: {
+          email,
+          username,
+          password: hashedPassword,
+        },
+      });
+      return {
+        accessToken: this.jwtService.sign({
+          userId: user.id,
+          email: user.email,
+        }),
+      };
+    } catch (error) {
+      console.log(error);
+      throw new Error('Internal Server Error');
+    }
+  }
 }
